@@ -3,6 +3,17 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 ---
 
 <BaseLayout title="Video Editing Suite - Legal Tools Suite" description="Trim, cut, and edit video files for depositions and evidence">
+  <!-- Full-page drop overlay -->
+  <div id="fullPageDropOverlay" class="hidden fixed inset-0 bg-primary-50 bg-opacity-95 z-50 flex items-center justify-center">
+    <div class="text-center">
+      <svg class="w-24 h-24 text-primary-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+      </svg>
+      <h3 class="text-2xl font-semibold text-primary-900 mb-2">Drop your video here</h3>
+      <p class="text-lg text-primary-700">Release to upload</p>
+    </div>
+  </div>
+
   <div class="max-w-7xl mx-auto">
     <!-- Back Button -->
     <a href="/" class="inline-flex items-center text-sm font-medium text-primary-600 hover:text-primary-700 mb-6">
@@ -198,7 +209,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
               <!-- Play Clip Button -->
               <div class="flex gap-2 transition-all duration-300">
-                <button id="playClipBtn" class="flex-1 px-4 py-2 bg-primary-600 text-white font-medium rounded-lg hover:bg-primary-700 transition-all duration-300 flex items-center justify-center gap-2">
+                <button id="playClipBtn" class="flex-1 px-4 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-all duration-300 flex items-center justify-center gap-2">
                   <svg id="playIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -217,15 +228,18 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
               </div>
 
               <!-- Dual Range Slider -->
-              <div class="relative h-12 pt-2">
-                <div class="relative h-2 bg-gray-200 rounded-full">
+              <div class="relative h-16 pt-2">
+                <!-- Timeline with tick marks -->
+                <div id="timelineTickMarks" class="absolute w-full h-6 top-0"></div>
+                <!-- Timeline track -->
+                <div class="relative h-3 bg-gray-200 rounded-sm mt-6">
                   <!-- Selected range highlight -->
-                  <div id="rangeHighlight" class="absolute h-full bg-primary-400 rounded-full" style="left: 0%; width: 100%;"></div>
+                  <div id="rangeHighlight" class="absolute h-full bg-primary-400" style="left: 0%; width: 100%;"></div>
                 </div>
                 <!-- Start handle slider -->
-                <input type="range" id="startTimeSlider" min="0" max="100" value="0" step="0.01" class="absolute top-0 w-full h-8 appearance-none bg-transparent pointer-events-none range-slider" style="z-index: 3;" />
+                <input type="range" id="startTimeSlider" min="0" max="100" value="0" step="0.01" class="absolute top-6 w-full h-8 appearance-none bg-transparent pointer-events-none range-slider" style="z-index: 3;" />
                 <!-- End handle slider -->
-                <input type="range" id="endTimeSlider" min="0" max="100" value="100" step="0.01" class="absolute top-0 w-full h-8 appearance-none bg-transparent pointer-events-none range-slider" style="z-index: 4;" />
+                <input type="range" id="endTimeSlider" min="0" max="100" value="100" step="0.01" class="absolute top-6 w-full h-8 appearance-none bg-transparent pointer-events-none range-slider" style="z-index: 4;" />
               </div>
 
               <!-- Fine-Tune Controls -->
@@ -380,7 +394,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
                 <p class="text-xs text-gray-500 mt-2">Higher frame rates create larger PDF files</p>
               </div>
 
-              <button class="w-full px-4 py-3 bg-primary-600 text-white font-medium rounded-lg hover:bg-primary-700 transition-colors">
+              <button id="exportPdfBtn" class="w-full px-4 py-3 bg-primary-600 text-white font-medium rounded-lg hover:bg-primary-700 transition-colors">
                 Export to PDF
               </button>
             </div>
@@ -522,7 +536,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       background: #0284c7;
     }
 
-    /* Dual range slider styles */
+    /* Dual range slider styles - Video editor style */
     .range-slider {
       pointer-events: none;
     }
@@ -530,13 +544,13 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     .range-slider::-webkit-slider-thumb {
       appearance: none;
       pointer-events: all;
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
+      width: 3px;
+      height: 32px;
+      border-radius: 2px;
       background: #0ea5e9;
       cursor: grab;
-      border: 3px solid white;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+      border: none;
+      box-shadow: 0 0 0 2px white, 0 2px 8px rgba(0, 0, 0, 0.3);
       position: relative;
       z-index: 10;
     }
@@ -544,35 +558,39 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     .range-slider::-moz-range-thumb {
       appearance: none;
       pointer-events: all;
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
+      width: 3px;
+      height: 32px;
+      border-radius: 2px;
       background: #0ea5e9;
       cursor: grab;
-      border: 3px solid white;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+      border: none;
+      box-shadow: 0 0 0 2px white, 0 2px 8px rgba(0, 0, 0, 0.3);
       position: relative;
       z-index: 10;
     }
 
     .range-slider::-webkit-slider-thumb:hover {
       background: #0284c7;
-      transform: scale(1.1);
+      box-shadow: 0 0 0 2px white, 0 2px 10px rgba(0, 0, 0, 0.4);
+      width: 4px;
     }
 
     .range-slider::-moz-range-thumb:hover {
       background: #0284c7;
-      transform: scale(1.1);
+      box-shadow: 0 0 0 2px white, 0 2px 10px rgba(0, 0, 0, 0.4);
+      width: 4px;
     }
 
     .range-slider::-webkit-slider-thumb:active {
       cursor: grabbing;
       background: #075985;
+      width: 4px;
     }
 
     .range-slider::-moz-range-thumb:active {
       cursor: grabbing;
       background: #075985;
+      width: 4px;
     }
 
     /* Hide the slider track */
@@ -624,6 +642,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     const clipControlPanel = document.getElementById('clipControlPanel');
     const noVideoPlaceholder = document.getElementById('noVideoPlaceholder');
     const resetBtn = document.getElementById('resetBtn');
+    const fullPageDropOverlay = document.getElementById('fullPageDropOverlay');
 
     // End time notification
     const endTimeNotification = document.getElementById('endTimeNotification');
@@ -663,6 +682,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     const endTimeDisplay = document.getElementById('endTimeDisplay');
     const clipDuration = document.getElementById('clipDuration');
     const rangeHighlight = document.getElementById('rangeHighlight');
+    const timelineTickMarks = document.getElementById('timelineTickMarks');
 
     // Fine-tune controls
     const startFrameNum = document.getElementById('startFrameNum');
@@ -678,8 +698,15 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     const speedDisplay = document.getElementById('speedDisplay');
     const newDuration = document.getElementById('newDuration');
 
+    // PDF Export controls
+    const exportPdfBtn = document.getElementById('exportPdfBtn');
+    const fpsSelect = document.getElementById('fpsSelect');
+    const includeTimestamps = document.getElementById('includeTimestamps');
+    const includeFrameNumbers = document.getElementById('includeFrameNumbers');
+
     let videoFile = null;
     let videoDurationSeconds = 0;
+    let clipHasBeenPlayed = false;
 
     // Show end time notification with auto-dismiss
     function showEndTimeNotification(endTime) {
@@ -743,6 +770,43 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       return Math.floor(seconds * 30);
     }
 
+    // Generate timeline tick marks
+    function generateTimelineTicks(duration) {
+      timelineTickMarks.innerHTML = '';
+
+      // Determine tick interval based on video duration
+      let majorInterval, minorInterval;
+      if (duration <= 30) {
+        majorInterval = 5;  // 5 second marks
+        minorInterval = 1;  // 1 second marks
+      } else if (duration <= 120) {
+        majorInterval = 10; // 10 second marks
+        minorInterval = 5;  // 5 second marks
+      } else if (duration <= 600) {
+        majorInterval = 30; // 30 second marks
+        minorInterval = 10; // 10 second marks
+      } else {
+        majorInterval = 60; // 1 minute marks
+        minorInterval = 30; // 30 second marks
+      }
+
+      // Create tick marks
+      for (let time = 0; time <= duration; time += minorInterval) {
+        const position = (time / duration) * 100;
+        const isMajor = time % majorInterval === 0;
+
+        const tick = document.createElement('div');
+        tick.className = 'absolute';
+        tick.style.left = `${position}%`;
+        tick.style.bottom = '0';
+        tick.style.width = '1px';
+        tick.style.height = isMajor ? '16px' : '8px';
+        tick.style.backgroundColor = isMajor ? '#6b7280' : '#d1d5db';
+
+        timelineTickMarks.appendChild(tick);
+      }
+    }
+
     // Format file size
     function formatFileSize(bytes) {
       if (bytes === 0) return '0 Bytes';
@@ -786,6 +850,204 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       videoInfoModal.classList.remove('hidden');
     }
 
+    // PDF Export Functions
+
+    // Capture a single frame from the video at a specific time
+    async function captureFrame(time) {
+      return new Promise((resolve, reject) => {
+        // Use the main video player directly instead of creating a new element
+        const originalTime = videoPlayer.currentTime;
+
+        const onSeeked = () => {
+          try {
+            const canvas = document.createElement('canvas');
+            canvas.width = videoPlayer.videoWidth;
+            canvas.height = videoPlayer.videoHeight;
+            const ctx = canvas.getContext('2d');
+
+            // Draw video frame
+            ctx.drawImage(videoPlayer, 0, 0);
+
+            // Add timestamp overlay if enabled
+            if (includeTimestamps.checked) {
+              const timestamp = formatTimePrecise(time);
+              const fontSize = Math.max(24, Math.floor(canvas.height / 30));
+              ctx.font = `bold ${fontSize}px Arial`;
+              ctx.textBaseline = 'top';
+
+              // Add background for better readability
+              const textMetrics = ctx.measureText(timestamp);
+              const padding = 10;
+              const bgX = 10;
+              const bgY = 10;
+              const bgWidth = textMetrics.width + padding * 2;
+              const bgHeight = fontSize + padding * 2;
+
+              ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+              ctx.fillRect(bgX, bgY, bgWidth, bgHeight);
+
+              // Draw timestamp text
+              ctx.fillStyle = 'white';
+              ctx.strokeStyle = 'black';
+              ctx.lineWidth = 2;
+              ctx.strokeText(timestamp, bgX + padding, bgY + padding);
+              ctx.fillText(timestamp, bgX + padding, bgY + padding);
+            }
+
+            // Clean up event listener
+            videoPlayer.removeEventListener('seeked', onSeeked);
+
+            resolve(canvas);
+          } catch (error) {
+            videoPlayer.removeEventListener('seeked', onSeeked);
+            reject(error);
+          }
+        };
+
+        videoPlayer.addEventListener('seeked', onSeeked);
+        videoPlayer.currentTime = time;
+      });
+    }
+
+    // Generate PDF with video frames
+    async function generatePDF() {
+      if (!videoFile || videoDurationSeconds === 0) {
+        alert('Please load a video first');
+        return;
+      }
+
+      // Disable button and show progress
+      exportPdfBtn.disabled = true;
+      const originalText = exportPdfBtn.textContent;
+      exportPdfBtn.textContent = 'Preparing...';
+
+      try {
+        // Import jsPDF dynamically
+        const { jsPDF } = await import('jspdf');
+
+        // Get user settings
+        const fps = parseInt(fpsSelect.value);
+        const startTime = parseFloat(startTimeSlider.value);
+        const endTime = parseFloat(endTimeSlider.value);
+        const duration = endTime - startTime;
+
+        // Calculate number of frames
+        const frameInterval = 1 / fps;
+        const totalFrames = Math.ceil(duration * fps);
+
+        // Estimate PDF size
+        const estimatedSizeMB = (totalFrames * 100) / 1024; // Rough estimate: 100KB per frame
+        if (estimatedSizeMB > 50 && !confirm(`This will generate approximately ${totalFrames} frames (${estimatedSizeMB.toFixed(1)}MB PDF). Continue?`)) {
+          exportPdfBtn.disabled = false;
+          exportPdfBtn.textContent = originalText;
+          return;
+        }
+
+        exportPdfBtn.textContent = 'Extracting frames...';
+
+        // Capture frames
+        const frames = [];
+        for (let i = 0; i < totalFrames; i++) {
+          const time = startTime + (i * frameInterval);
+          if (time > endTime) break;
+
+          exportPdfBtn.textContent = `Extracting frame ${i + 1} of ${totalFrames}...`;
+          const canvas = await captureFrame(time);
+
+          frames.push({
+            canvas,
+            time,
+            frameNumber: getFrameNumber(time)
+          });
+        }
+
+        exportPdfBtn.textContent = 'Generating PDF...';
+
+        // Create PDF
+        const pdf = new jsPDF({
+          orientation: 'landscape',
+          unit: 'mm',
+          format: 'a4'
+        });
+
+        // Add metadata page
+        pdf.setFontSize(20);
+        pdf.text('Video Analysis Report', 148, 20, { align: 'center' });
+
+        pdf.setFontSize(12);
+        pdf.text(`File: ${videoFile.name}`, 20, 40);
+        pdf.text(`Duration: ${formatTimePrecise(videoDurationSeconds)}`, 20, 50);
+        pdf.text(`Resolution: ${videoPlayer.videoWidth} × ${videoPlayer.videoHeight}`, 20, 60);
+        pdf.text(`Clip Range: ${formatTimePrecise(startTime)} - ${formatTimePrecise(endTime)}`, 20, 70);
+        pdf.text(`Clip Duration: ${formatTimePrecise(duration)}`, 20, 80);
+        pdf.text(`Frame Rate: ${fps} fps`, 20, 90);
+        pdf.text(`Total Frames: ${totalFrames}`, 20, 100);
+        pdf.text(`Export Date: ${new Date().toLocaleString()}`, 20, 110);
+
+        // Add frames
+        for (let i = 0; i < frames.length; i++) {
+          const frame = frames[i];
+
+          exportPdfBtn.textContent = `Adding frame ${i + 1} of ${frames.length} to PDF...`;
+
+          pdf.addPage();
+
+          // Add frame image
+          const imgData = frame.canvas.toDataURL('image/jpeg', 0.85);
+          const aspectRatio = frame.canvas.width / frame.canvas.height;
+
+          // Calculate dimensions to fit on page (A4 landscape: 297mm x 210mm)
+          const maxWidth = 260;
+          const maxHeight = 160;
+          let imgWidth = maxWidth;
+          let imgHeight = imgWidth / aspectRatio;
+
+          if (imgHeight > maxHeight) {
+            imgHeight = maxHeight;
+            imgWidth = imgHeight * aspectRatio;
+          }
+
+          const x = (297 - imgWidth) / 2;
+          const y = 20;
+
+          pdf.addImage(imgData, 'JPEG', x, y, imgWidth, imgHeight);
+
+          // Add frame info below image
+          pdf.setFontSize(10);
+          const infoY = y + imgHeight + 10;
+          pdf.text(`Timestamp: ${formatTimePrecise(frame.time)}`, 20, infoY);
+
+          if (includeFrameNumbers.checked) {
+            pdf.text(`Frame #: ${frame.frameNumber}`, 20, infoY + 7);
+          }
+
+          // Add page number
+          pdf.text(`Page ${i + 2} of ${frames.length + 1}`, 277, 200, { align: 'right' });
+        }
+
+        // Add page numbers to metadata page
+        pdf.setPage(1);
+        pdf.setFontSize(10);
+        pdf.text('Page 1 of ' + (frames.length + 1), 277, 200, { align: 'right' });
+
+        // Save PDF
+        const fileName = videoFile.name.replace(/\.[^/.]+$/, '') + '_analysis.pdf';
+        pdf.save(fileName);
+
+        exportPdfBtn.textContent = 'PDF Generated!';
+        setTimeout(() => {
+          exportPdfBtn.textContent = originalText;
+          exportPdfBtn.disabled = false;
+        }, 2000);
+
+      } catch (error) {
+        console.error('PDF generation error:', error);
+        alert('Error generating PDF: ' + error.message);
+        exportPdfBtn.textContent = originalText;
+        exportPdfBtn.disabled = false;
+      }
+    }
+
     // Drop zone click
     dropZone.addEventListener('click', () => {
       videoInput.click();
@@ -804,6 +1066,40 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     dropZone.addEventListener('drop', (e) => {
       e.preventDefault();
       dropZone.classList.remove('border-primary-400', 'bg-primary-50');
+
+      const files = e.dataTransfer.files;
+      if (files.length > 0 && files[0].type.startsWith('video/')) {
+        handleVideoUpload(files[0]);
+      }
+    });
+
+    // Window-wide drag and drop
+    let dragCounter = 0;
+
+    document.addEventListener('dragenter', (e) => {
+      e.preventDefault();
+      dragCounter++;
+      if (dragCounter === 1) {
+        fullPageDropOverlay.classList.remove('hidden');
+      }
+    });
+
+    document.addEventListener('dragleave', (e) => {
+      e.preventDefault();
+      dragCounter--;
+      if (dragCounter === 0) {
+        fullPageDropOverlay.classList.add('hidden');
+      }
+    });
+
+    document.addEventListener('dragover', (e) => {
+      e.preventDefault();
+    });
+
+    document.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dragCounter = 0;
+      fullPageDropOverlay.classList.add('hidden');
 
       const files = e.dataTransfer.files;
       if (files.length > 0 && files[0].type.startsWith('video/')) {
@@ -841,6 +1137,9 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         startTimeSlider.max = videoDurationSeconds;
         endTimeSlider.max = videoDurationSeconds;
         endTimeSlider.value = videoDurationSeconds;
+
+        // Generate timeline tick marks
+        generateTimelineTicks(videoDurationSeconds);
 
         updateClipDisplay();
       });
@@ -901,17 +1200,27 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     // Update button states based on video playing state
     function updatePlayPauseButtons() {
       if (videoPlayer.paused) {
-        // Show play icon, hide restart button
+        // Show play icon with green color
         playIcon.classList.remove('hidden');
         pauseIcon.classList.add('hidden');
         playClipBtnText.textContent = 'Play';
-        restartClipBtn.classList.add('hidden');
+        // Change to green for play
+        playClipBtn.classList.remove('bg-primary-600', 'hover:bg-primary-700');
+        playClipBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+        // Keep restart button visible if clip has been played before
+        if (!clipHasBeenPlayed) {
+          restartClipBtn.classList.add('hidden');
+        }
       } else {
-        // Show pause icon and restart button
+        // Show pause icon with primary color
         playIcon.classList.add('hidden');
         pauseIcon.classList.remove('hidden');
         playClipBtnText.textContent = 'Pause';
+        // Change to primary for pause
+        playClipBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
+        playClipBtn.classList.add('bg-primary-600', 'hover:bg-primary-700');
         restartClipBtn.classList.remove('hidden');
+        clipHasBeenPlayed = true;
       }
     }
 
@@ -1045,6 +1354,11 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       if (e.key === 'Escape' && !videoInfoModal.classList.contains('hidden')) {
         videoInfoModal.classList.add('hidden');
       }
+    });
+
+    // PDF Export button
+    exportPdfBtn.addEventListener('click', () => {
+      generatePDF();
     });
 
     // Zoom level
