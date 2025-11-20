@@ -1,0 +1,755 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Case File Explorer - Legal Tools Suite" description="Analyze and explore case folder structures for evidence organization">
+  <div class="max-w-7xl mx-auto">
+    <!-- Back Button -->
+    <a href="/" class="inline-flex items-center text-sm font-medium text-primary-600 hover:text-primary-700 mb-6">
+      <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+      </svg>
+      Back to Home
+    </a>
+
+    <!-- Tool Header -->
+    <div class="mb-8">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+          <div class="w-16 h-16 bg-primary-100 rounded-lg flex items-center justify-center">
+            <svg class="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+            </svg>
+          </div>
+          <div>
+            <h1 class="text-3xl sm:text-4xl font-bold text-gray-900">Case File Explorer</h1>
+            <p class="text-gray-600 mt-1">Analyze and explore case folder structures for evidence organization</p>
+          </div>
+        </div>
+        <button id="resetBtn" class="hidden px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+          Reset & Upload New Folder
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="grid grid-cols-1 gap-6">
+      <!-- Drop Zone (shown initially) -->
+      <div id="dropZone" class="bg-white border-2 border-dashed border-gray-300 rounded-lg p-12 text-center hover:border-primary-400 transition-colors cursor-pointer">
+        <input type="file" id="folderInput" webkitdirectory directory multiple class="hidden" />
+        <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+        </svg>
+        <h3 class="text-xl font-semibold text-gray-900 mb-2">Drop your case folder here</h3>
+        <p class="text-gray-600 mb-4">or click to browse</p>
+        <p class="text-sm text-gray-500">Upload entire folder structures with all subfolders and files</p>
+      </div>
+
+      <!-- Loading Indicator -->
+      <div id="loadingIndicator" class="hidden bg-white border border-gray-200 rounded-lg p-12 text-center">
+        <div class="flex flex-col items-center">
+          <div class="animate-spin rounded-full h-16 w-16 border-b-4 border-primary-600 mb-4"></div>
+          <h3 class="text-lg font-semibold text-gray-900 mb-2">Processing folder structure...</h3>
+          <p class="text-sm text-gray-600">
+            <span id="loadingProgress">Analyzing files...</span>
+          </p>
+        </div>
+      </div>
+
+      <!-- Folder Stats Display (hidden initially) -->
+      <div id="folderStatsContainer" class="hidden bg-white border border-gray-200 rounded-lg overflow-hidden">
+        <div class="bg-gradient-to-r from-primary-50 to-primary-100 px-6 py-4 border-b border-primary-200">
+          <h3 class="text-lg font-semibold text-primary-900">Folder Loaded Successfully</h3>
+        </div>
+
+        <div class="p-6">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Folder Name -->
+            <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+              <div class="flex items-center mb-2">
+                <svg class="w-5 h-5 text-primary-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                </svg>
+                <span class="text-sm font-medium text-gray-600">Folder Name</span>
+              </div>
+              <p id="folderName" class="text-xl font-semibold text-gray-900 break-all">--</p>
+            </div>
+
+            <!-- File Count -->
+            <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+              <div class="flex items-center mb-2">
+                <svg class="w-5 h-5 text-primary-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <span class="text-sm font-medium text-gray-600">Total Files</span>
+              </div>
+              <p id="fileCount" class="text-xl font-semibold text-gray-900">0</p>
+            </div>
+
+            <!-- Total Size -->
+            <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+              <div class="flex items-center mb-2">
+                <svg class="w-5 h-5 text-primary-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4" />
+                </svg>
+                <span class="text-sm font-medium text-gray-600">Total Size</span>
+              </div>
+              <p id="totalSize" class="text-xl font-semibold text-gray-900">0 B</p>
+            </div>
+          </div>
+
+          <!-- Success Message -->
+          <div class="mt-6 bg-green-50 border border-green-200 rounded-lg p-4">
+            <div class="flex">
+              <svg class="w-5 h-5 text-green-600 mt-0.5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div>
+                <h4 class="text-sm font-semibold text-green-900 mb-1">Folder structure loaded</h4>
+                <p class="text-sm text-green-700">All files and subfolders have been successfully read and are ready for processing.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI Analysis Format Display (hidden initially) -->
+      <div id="aiFormatContainer" class="hidden bg-white border border-gray-200 rounded-lg overflow-hidden">
+        <div class="bg-gradient-to-r from-purple-50 to-purple-100 px-6 py-4 border-b border-purple-200">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-lg font-semibold text-purple-900">AI Analysis Format</h3>
+              <p class="text-sm text-purple-700 mt-1">
+                <span id="optimizationLevel">--</span> • Estimated tokens: <span id="estimatedTokens">--</span>
+              </p>
+            </div>
+            <button id="copyBtn" class="px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+              </svg>
+              Copy to Clipboard
+            </button>
+          </div>
+        </div>
+
+        <div class="p-6">
+          <!-- File Type Distribution -->
+          <div id="fileTypeDistribution" class="mb-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+            <h4 class="text-sm font-semibold text-gray-900 mb-2">File Type Distribution</h4>
+            <div id="fileTypeList" class="text-sm text-gray-700">
+              <!-- Will be populated dynamically -->
+            </div>
+          </div>
+
+          <!-- API Payload Preview -->
+          <div class="mb-4">
+            <h4 class="text-sm font-semibold text-gray-900 mb-2">API Payload (What would be sent to server)</h4>
+            <div class="bg-gray-900 rounded-lg p-4 border border-gray-700 overflow-auto max-h-[600px]">
+              <pre id="apiPayload" class="font-mono text-xs text-green-400 whitespace-pre"><!-- Payload will be inserted here --></pre>
+            </div>
+            <div class="mt-2 flex justify-end">
+              <button id="copyPayloadBtn" class="px-3 py-1.5 bg-gray-700 text-white text-xs font-medium rounded hover:bg-gray-600 transition-colors">
+                Copy JSON Payload
+              </button>
+            </div>
+          </div>
+
+          <!-- Generated Tree Format (Human Readable) -->
+          <div class="relative">
+            <h4 class="text-sm font-semibold text-gray-900 mb-2">Tree Format (Human Readable)</h4>
+            <pre id="treeOutput" class="font-mono text-xs text-gray-800 whitespace-pre overflow-auto max-h-[500px] bg-gray-50 rounded-lg p-4 border border-gray-200"><!-- Tree will be inserted here --></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    #dropZone.drag-over {
+      border-color: #0ea5e9;
+      background-color: rgba(14, 165, 233, 0.05);
+    }
+
+    #copyBtn.copied {
+      background-color: #10b981;
+    }
+
+    #copyBtn.copied svg {
+      display: none;
+    }
+
+    #copyBtn.copied::after {
+      content: '✓ Copied!';
+    }
+  </style>
+
+  <script>
+    // DOM Elements
+    const dropZone = document.getElementById('dropZone');
+    const folderInput = document.getElementById('folderInput');
+    const loadingIndicator = document.getElementById('loadingIndicator');
+    const loadingProgress = document.getElementById('loadingProgress');
+    const folderStatsContainer = document.getElementById('folderStatsContainer');
+    const aiFormatContainer = document.getElementById('aiFormatContainer');
+    const resetBtn = document.getElementById('resetBtn');
+    const folderName = document.getElementById('folderName');
+    const fileCount = document.getElementById('fileCount');
+    const totalSize = document.getElementById('totalSize');
+    const optimizationLevel = document.getElementById('optimizationLevel');
+    const estimatedTokens = document.getElementById('estimatedTokens');
+    const fileTypeList = document.getElementById('fileTypeList');
+    const treeOutput = document.getElementById('treeOutput');
+    const apiPayload = document.getElementById('apiPayload');
+    const copyBtn = document.getElementById('copyBtn');
+    const copyPayloadBtn = document.getElementById('copyPayloadBtn');
+
+    let uploadedFiles = [];
+    let generatedTreeFormat = '';
+    let generatedApiPayload = '';
+
+    // Drop zone click
+    dropZone.addEventListener('click', () => {
+      folderInput.click();
+    });
+
+    // Drag and drop handlers
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.classList.add('drag-over');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.classList.remove('drag-over');
+    });
+
+    dropZone.addEventListener('drop', async (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('drag-over');
+
+      const items = e.dataTransfer.items;
+      if (items && items.length > 0) {
+        // Get the first item and check if it's a directory
+        const item = items[0].webkitGetAsEntry();
+        if (item && item.isDirectory) {
+          showLoading();
+          const files = [];
+          await traverseDirectory(item, '', files);
+          handleFolderUpload(files, item.name);
+        }
+      }
+    });
+
+    // Traverse directory recursively
+    async function traverseDirectory(entry, path, files) {
+      if (entry.isFile) {
+        return new Promise((resolve) => {
+          entry.file((file) => {
+            files.push({
+              name: file.name,
+              path: path + file.name,
+              size: file.size,
+              type: file.type,
+              isDirectory: false
+            });
+
+            // Update progress every 100 files
+            if (files.length % 100 === 0) {
+              loadingProgress.textContent = `Processed ${files.length} files...`;
+            }
+
+            resolve();
+          });
+        });
+      } else if (entry.isDirectory) {
+        const dirReader = entry.createReader();
+        return new Promise((resolve) => {
+          const readEntries = () => {
+            dirReader.readEntries(async (entries) => {
+              if (entries.length === 0) {
+                resolve();
+              } else {
+                for (const entry of entries) {
+                  await traverseDirectory(entry, path + entry.name + '/', files);
+                }
+                readEntries(); // Continue reading if there are more entries
+              }
+            });
+          };
+          readEntries();
+        });
+      }
+    }
+
+    // Folder input change
+    folderInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) {
+        showLoading();
+
+        // Use setTimeout to allow loading indicator to render
+        setTimeout(() => {
+          const files = Array.from(e.target.files);
+          const folderPath = files[0].webkitRelativePath;
+          const folderNameExtracted = folderPath.split('/')[0];
+
+          const fileList = files.map((file, index) => {
+            // Update progress every 500 files
+            if (index % 500 === 0) {
+              loadingProgress.textContent = `Processing ${index} of ${files.length} files...`;
+            }
+
+            return {
+              name: file.name,
+              path: file.webkitRelativePath,
+              size: file.size,
+              type: file.type,
+              isDirectory: false
+            };
+          });
+
+          handleFolderUpload(fileList, folderNameExtracted);
+        }, 100);
+      }
+    });
+
+    // Show loading indicator
+    function showLoading() {
+      dropZone.classList.add('hidden');
+      folderStatsContainer.classList.add('hidden');
+      aiFormatContainer.classList.add('hidden');
+      loadingIndicator.classList.remove('hidden');
+      loadingProgress.textContent = 'Analyzing files...';
+    }
+
+    // Hide loading indicator
+    function hideLoading() {
+      loadingIndicator.classList.add('hidden');
+      folderStatsContainer.classList.remove('hidden');
+      aiFormatContainer.classList.remove('hidden');
+    }
+
+    // Handle folder upload
+    function handleFolderUpload(files, rootFolderName) {
+      uploadedFiles = files;
+
+      // Calculate stats
+      let totalBytes = 0;
+      files.forEach(file => {
+        totalBytes += file.size;
+      });
+
+      // Display stats
+      folderName.textContent = rootFolderName;
+      fileCount.textContent = files.length.toLocaleString();
+      totalSize.textContent = formatFileSize(totalBytes);
+
+      // Generate AI analysis format
+      loadingProgress.textContent = 'Generating AI analysis format...';
+      setTimeout(() => {
+        generateAIFormat(files, rootFolderName, totalBytes);
+        hideLoading();
+        resetBtn.classList.remove('hidden');
+      }, 100);
+    }
+
+    // Generate AI analysis format with token optimization
+    function generateAIFormat(files, rootName, totalBytes) {
+      const fileCountNum = files.length;
+      let format = '';
+      let level = '';
+
+      // Choose optimization level based on file count
+      if (fileCountNum < 500) {
+        level = 'Full Detail (< 500 files)';
+        format = generateFullTree(files, rootName, totalBytes);
+      } else if (fileCountNum < 2000) {
+        level = 'Smart Optimization (500-2000 files)';
+        format = generateSmartTree(files, rootName, totalBytes);
+      } else {
+        level = 'Condensed Summary (2000+ files)';
+        format = generateCondensedSummary(files, rootName, totalBytes);
+      }
+
+      generatedTreeFormat = format;
+
+      // Display format
+      treeOutput.textContent = format;
+      optimizationLevel.textContent = level;
+
+      // Estimate tokens (roughly 1 token per 4 characters)
+      const estimatedTokenCount = Math.ceil(format.length / 4);
+      estimatedTokens.textContent = estimatedTokenCount.toLocaleString();
+
+      // Generate and display API payload
+      generateAndDisplayApiPayload(files, rootName, totalBytes, format, level, estimatedTokenCount);
+
+      // Display file type distribution
+      displayFileTypeDistribution(files);
+
+      console.log('AI Format Generated:');
+      console.log(format);
+    }
+
+    // Generate API payload that would be sent to server
+    function generateAndDisplayApiPayload(files, rootName, totalBytes, treeFormat, optimizationLevel, tokenCount) {
+      // Get file type statistics
+      const fileTypeStats = {};
+      files.forEach(file => {
+        const ext = getFileExtension(file.name);
+        if (!fileTypeStats[ext]) {
+          fileTypeStats[ext] = { count: 0, totalSize: 0 };
+        }
+        fileTypeStats[ext].count++;
+        fileTypeStats[ext].totalSize += file.size;
+      });
+
+      // Get largest files
+      const largestFiles = files
+        .sort((a, b) => b.size - a.size)
+        .slice(0, 10)
+        .map(f => ({
+          path: f.path,
+          name: f.name,
+          size: f.size,
+          sizeFormatted: formatFileSize(f.size),
+          extension: getFileExtension(f.name)
+        }));
+
+      // Build the complete API payload
+      const payload = {
+        metadata: {
+          folderName: rootName,
+          totalFiles: files.length,
+          totalFolders: countUniqueFolders(files),
+          totalSize: totalBytes,
+          totalSizeFormatted: formatFileSize(totalBytes),
+          uploadedAt: new Date().toISOString(),
+          optimizationLevel: optimizationLevel,
+          estimatedTokens: tokenCount
+        },
+        fileTypeDistribution: fileTypeStats,
+        largestFiles: largestFiles,
+        folderStructure: treeFormat,
+        analysisRequest: {
+          task: 'analyze_folder_organization',
+          instructions: 'Analyze this folder structure and provide recommendations for better organization. Look for issues like: poor naming conventions, disorganized hierarchy, missing folder structure, duplicate files, inconsistent patterns, and file type organization problems. Provide specific actionable recommendations.'
+        }
+      };
+
+      // Convert to formatted JSON
+      generatedApiPayload = JSON.stringify(payload, null, 2);
+
+      // Display in the browser
+      apiPayload.textContent = generatedApiPayload;
+
+      console.log('API Payload:', payload);
+    }
+
+    // Count unique folders in the file list
+    function countUniqueFolders(files) {
+      const folders = new Set();
+      files.forEach(file => {
+        const parts = file.path.split('/');
+        for (let i = 1; i < parts.length; i++) {
+          folders.add(parts.slice(0, i).join('/'));
+        }
+      });
+      return folders.size;
+    }
+
+    // Generate full detailed tree (< 500 files)
+    function generateFullTree(files, rootName, totalBytes) {
+      const tree = buildFolderTree(files, rootName);
+      let output = `${rootName}/ (${files.length} files, ${formatFileSize(totalBytes)})\n`;
+
+      function renderNode(node, prefix = '') {
+        const entries = Object.entries(node).sort((a, b) => {
+          // Folders first, then files
+          const aIsFolder = !a[1]._file;
+          const bIsFolder = !b[1]._file;
+          if (aIsFolder && !bIsFolder) return -1;
+          if (!aIsFolder && bIsFolder) return 1;
+          return a[0].localeCompare(b[0]);
+        });
+
+        entries.forEach(([name, value], idx) => {
+          const isLast = idx === entries.length - 1;
+          const connector = isLast ? '└── ' : '├── ';
+          const extension = isLast ? '    ' : '│   ';
+
+          if (value._file) {
+            output += `${prefix}${connector}${name} (${formatFileSize(value.size)})\n`;
+          } else {
+            const childCount = countFiles(value);
+            const childSize = calculateFolderSize(value);
+            output += `${prefix}${connector}${name}/ (${childCount} files, ${formatFileSize(childSize)})\n`;
+            renderNode(value, prefix + extension);
+          }
+        });
+      }
+
+      renderNode(tree);
+      return output;
+    }
+
+    // Generate smart tree (500-2000 files) - summarizes large folders
+    function generateSmartTree(files, rootName, totalBytes) {
+      const tree = buildFolderTree(files, rootName);
+      let output = `${rootName}/ (${files.length} files, ${formatFileSize(totalBytes)})\n`;
+
+      function renderNode(node, prefix = '', depth = 0) {
+        const entries = Object.entries(node).sort((a, b) => {
+          const aIsFolder = !a[1]._file;
+          const bIsFolder = !b[1]._file;
+          if (aIsFolder && !bIsFolder) return -1;
+          if (!aIsFolder && bIsFolder) return 1;
+          return a[0].localeCompare(b[0]);
+        });
+
+        entries.forEach(([name, value], idx) => {
+          const isLast = idx === entries.length - 1;
+          const connector = isLast ? '└── ' : '├── ';
+          const extension = isLast ? '    ' : '│   ';
+
+          if (value._file) {
+            output += `${prefix}${connector}${name} (${formatFileSize(value.size)})\n`;
+          } else {
+            const childCount = countFiles(value);
+            const childSize = calculateFolderSize(value);
+            const childFiles = getFilesInFolder(value);
+
+            output += `${prefix}${connector}${name}/ (${childCount} files, ${formatFileSize(childSize)})\n`;
+
+            // If folder has > 50 files, summarize instead of listing all
+            if (childCount > 50) {
+              const extensions = getExtensionSummary(childFiles);
+              output += `${prefix}${extension}└── [${childCount} files: ${extensions}]\n`;
+            } else {
+              renderNode(value, prefix + extension, depth + 1);
+            }
+          }
+        });
+      }
+
+      renderNode(tree);
+      return output;
+    }
+
+    // Generate condensed summary (2000+ files)
+    function generateCondensedSummary(files, rootName, totalBytes) {
+      const folderStats = {};
+
+      files.forEach(file => {
+        const pathParts = file.path.split('/');
+        const folderPath = pathParts.slice(0, -1).join('/') || rootName;
+
+        if (!folderStats[folderPath]) {
+          folderStats[folderPath] = {
+            files: [],
+            size: 0,
+            extensions: {}
+          };
+        }
+
+        const ext = getFileExtension(file.name);
+        folderStats[folderPath].files.push(file);
+        folderStats[folderPath].size += file.size;
+        folderStats[folderPath].extensions[ext] = (folderStats[folderPath].extensions[ext] || 0) + 1;
+      });
+
+      let output = `${rootName}/ (${files.length} files, ${formatFileSize(totalBytes)})\n\n`;
+      output += `FOLDER SUMMARY:\n`;
+      output += `${'='.repeat(60)}\n\n`;
+
+      const sortedFolders = Object.keys(folderStats).sort();
+
+      sortedFolders.forEach(folderPath => {
+        const stats = folderStats[folderPath];
+        const depth = folderPath.split('/').filter(Boolean).length;
+        const indent = '  '.repeat(Math.max(0, depth - 1));
+        const folderName = folderPath.split('/').pop() || rootName;
+
+        const topExts = Object.entries(stats.extensions)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 3)
+          .map(([ext, count]) => `${count} ${ext}`)
+          .join(', ');
+
+        output += `${indent}📁 ${folderName}/ — ${stats.files.length} files (${formatFileSize(stats.size)}) [${topExts}]\n`;
+      });
+
+      return output;
+    }
+
+    // Build folder tree structure
+    function buildFolderTree(files, rootName) {
+      const tree = {};
+
+      files.forEach(file => {
+        const parts = file.path.split('/');
+        const startIdx = parts[0] === rootName ? 1 : 0;
+        let current = tree;
+
+        for (let i = startIdx; i < parts.length; i++) {
+          const part = parts[i];
+          const isLastPart = i === parts.length - 1;
+
+          if (isLastPart) {
+            current[part] = {
+              _file: true,
+              size: file.size,
+              type: file.type,
+              name: file.name
+            };
+          } else {
+            if (!current[part]) {
+              current[part] = {};
+            }
+            current = current[part];
+          }
+        }
+      });
+
+      return tree;
+    }
+
+    // Helper functions
+    function countFiles(node) {
+      let count = 0;
+      Object.values(node).forEach(value => {
+        if (value._file) {
+          count++;
+        } else {
+          count += countFiles(value);
+        }
+      });
+      return count;
+    }
+
+    function calculateFolderSize(node) {
+      let size = 0;
+      Object.values(node).forEach(value => {
+        if (value._file) {
+          size += value.size;
+        } else {
+          size += calculateFolderSize(value);
+        }
+      });
+      return size;
+    }
+
+    function getFilesInFolder(node) {
+      const files = [];
+      Object.values(node).forEach(value => {
+        if (value._file) {
+          files.push(value);
+        } else {
+          files.push(...getFilesInFolder(value));
+        }
+      });
+      return files;
+    }
+
+    function getExtensionSummary(files) {
+      const extensions = {};
+      files.forEach(file => {
+        const ext = getFileExtension(file.name);
+        extensions[ext] = (extensions[ext] || 0) + 1;
+      });
+
+      return Object.entries(extensions)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 3)
+        .map(([ext, count]) => `${count} ${ext}`)
+        .join(', ');
+    }
+
+    function getFileExtension(filename) {
+      const parts = filename.split('.');
+      return parts.length > 1 ? parts.pop().toLowerCase() : 'no-ext';
+    }
+
+    function displayFileTypeDistribution(files) {
+      const extensions = {};
+      let totalSize = 0;
+
+      files.forEach(file => {
+        const ext = getFileExtension(file.name);
+        if (!extensions[ext]) {
+          extensions[ext] = { count: 0, size: 0 };
+        }
+        extensions[ext].count++;
+        extensions[ext].size += file.size;
+        totalSize += file.size;
+      });
+
+      const sortedExts = Object.entries(extensions)
+        .sort((a, b) => b[1].count - a[1].count)
+        .slice(0, 10);
+
+      let html = '<div class="grid grid-cols-2 gap-2">';
+      sortedExts.forEach(([ext, data]) => {
+        const percentage = ((data.size / totalSize) * 100).toFixed(1);
+        html += `<div class="flex justify-between">
+          <span class="font-mono">.${ext}</span>
+          <span class="text-gray-600">${data.count} files (${formatFileSize(data.size)}, ${percentage}%)</span>
+        </div>`;
+      });
+      html += '</div>';
+
+      fileTypeList.innerHTML = html;
+    }
+
+    // Format file size
+    function formatFileSize(bytes) {
+      if (bytes === 0) return '0 B';
+      const k = 1024;
+      const sizes = ['B', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
+    }
+
+    // Copy to clipboard
+    copyBtn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(generatedTreeFormat);
+        copyBtn.classList.add('copied');
+        setTimeout(() => {
+          copyBtn.classList.remove('copied');
+        }, 2000);
+      } catch (err) {
+        console.error('Failed to copy:', err);
+        alert('Failed to copy to clipboard');
+      }
+    });
+
+    // Copy API payload to clipboard
+    copyPayloadBtn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(generatedApiPayload);
+        const originalText = copyPayloadBtn.textContent;
+        copyPayloadBtn.textContent = '✓ Copied!';
+        copyPayloadBtn.classList.add('bg-green-600');
+        setTimeout(() => {
+          copyPayloadBtn.textContent = originalText;
+          copyPayloadBtn.classList.remove('bg-green-600');
+        }, 2000);
+      } catch (err) {
+        console.error('Failed to copy:', err);
+        alert('Failed to copy to clipboard');
+      }
+    });
+
+    // Reset button
+    resetBtn.addEventListener('click', () => {
+      uploadedFiles = [];
+      generatedTreeFormat = '';
+      generatedApiPayload = '';
+      folderInput.value = '';
+
+      dropZone.classList.remove('hidden');
+      folderStatsContainer.classList.add('hidden');
+      aiFormatContainer.classList.add('hidden');
+      resetBtn.classList.add('hidden');
+    });
+  </script>
+</BaseLayout>
