@@ -1,0 +1,73 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ToolCard from '../components/ToolCard.astro';
+
+const tools = [
+  {
+    title: 'Video Editing Suite',
+    description: 'Trim, cut, and edit video files for depositions and evidence presentation.',
+    href: '/tools/video-editing',
+    icon: 'video'
+  },
+  {
+    title: 'Audio Transcription',
+    description: 'Convert audio and video files to searchable text transcripts with timestamps.',
+    href: '/tools/audio-transcription',
+    icon: 'audio'
+  },
+  {
+    title: 'Document Analysis',
+    description: 'AI-powered analysis of legal documents, contracts, and discovery materials.',
+    href: '/tools/document-analysis',
+    icon: 'document'
+  },
+  {
+    title: 'Calendar Event Creator',
+    description: 'Generate .ics calendar files for court dates, deadlines, and important events.',
+    href: '/tools/calendar-creator',
+    icon: 'calendar'
+  }
+];
+---
+
+<BaseLayout title="Legal Tools Suite - Professional Legal & Productivity Tools">
+  <div class="space-y-8">
+    <!-- Hero Section -->
+    <div class="text-center space-y-4">
+      <h1 class="text-4xl sm:text-5xl font-bold text-gray-900">
+        Legal Tools Suite
+      </h1>
+      <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+        A comprehensive collection of professional tools designed to streamline your legal workflow
+      </p>
+    </div>
+
+    <!-- Tools Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12">
+      {tools.map((tool) => (
+        <ToolCard
+          title={tool.title}
+          description={tool.description}
+          href={tool.href}
+          icon={tool.icon}
+        />
+      ))}
+    </div>
+
+    <!-- Info Section -->
+    <div class="mt-16 bg-primary-50 rounded-lg p-6 sm:p-8 border border-primary-100">
+      <h2 class="text-2xl font-bold text-gray-900 mb-4">About These Tools</h2>
+      <div class="prose prose-primary max-w-none">
+        <p class="text-gray-700">
+          Our suite of tools is designed to help legal professionals work more efficiently.
+          Each tool focuses on a specific task, providing a simple and intuitive interface
+          without the need for complex software installations or user accounts.
+        </p>
+        <p class="text-gray-700 mt-3">
+          All tools run directly in your browser, ensuring your data remains private and secure.
+          No files are uploaded to external servers unless explicitly stated.
+        </p>
+      </div>
+    </div>
+  </div>
+</BaseLayout>

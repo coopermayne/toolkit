@@ -1,0 +1,72 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Calendar Event Creator - Legal Tools Suite" description="Generate .ics calendar files for court dates and deadlines">
+  <div class="max-w-4xl mx-auto">
+    <!-- Back Button -->
+    <a href="/" class="inline-flex items-center text-sm font-medium text-primary-600 hover:text-primary-700 mb-6">
+      <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+      </svg>
+      Back to Home
+    </a>
+
+    <!-- Tool Header -->
+    <div class="mb-8">
+      <div class="flex items-center space-x-4 mb-4">
+        <div class="w-16 h-16 bg-primary-100 rounded-lg flex items-center justify-center">
+          <svg class="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-3xl sm:text-4xl font-bold text-gray-900">Calendar Event Creator</h1>
+          <p class="text-gray-600 mt-1">Generate .ics calendar files for court dates and deadlines</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Under Construction Notice -->
+    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-8 text-center">
+      <svg class="w-16 h-16 text-yellow-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+      </svg>
+      <h2 class="text-2xl font-bold text-gray-900 mb-2">This Tool is Under Construction</h2>
+      <p class="text-gray-700 max-w-md mx-auto">
+        We're working hard to bring you this tool. Check back soon for updates!
+      </p>
+    </div>
+
+    <!-- Planned Features -->
+    <div class="mt-8 bg-white border border-gray-200 rounded-lg p-6">
+      <h3 class="text-lg font-semibold text-gray-900 mb-4">Planned Features</h3>
+      <ul class="space-y-3">
+        <li class="flex items-start">
+          <svg class="w-5 h-5 text-primary-600 mr-3 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+          </svg>
+          <span class="text-gray-700">Create calendar events with custom reminders</span>
+        </li>
+        <li class="flex items-start">
+          <svg class="w-5 h-5 text-primary-600 mr-3 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+          </svg>
+          <span class="text-gray-700">Export to .ics format compatible with all major calendars</span>
+        </li>
+        <li class="flex items-start">
+          <svg class="w-5 h-5 text-primary-600 mr-3 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+          </svg>
+          <span class="text-gray-700">Set multiple reminder notifications</span>
+        </li>
+        <li class="flex items-start">
+          <svg class="w-5 h-5 text-primary-600 mr-3 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+          </svg>
+          <span class="text-gray-700">Works with Google Calendar, Outlook, Apple Calendar, and more</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+</BaseLayout>
