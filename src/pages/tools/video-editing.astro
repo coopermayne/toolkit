@@ -54,19 +54,9 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
               Your browser does not support the video tag.
             </video>
           </div>
-          <div class="p-4 border-t border-gray-200">
-            <div class="flex items-center justify-between text-sm mb-3">
-              <div>
-                <span class="font-medium text-gray-700">File:</span>
-                <span id="videoFileName" class="text-gray-600 ml-2"></span>
-              </div>
-              <div>
-                <span class="font-medium text-gray-700">Duration:</span>
-                <span id="videoDuration" class="text-gray-600 ml-2">--:--</span>
-              </div>
-            </div>
-            <button id="videoInfoBtn" class="w-full px-3 py-1.5 text-xs font-medium text-primary-700 bg-primary-50 border border-primary-200 rounded hover:bg-primary-100 transition-colors flex items-center justify-center gap-1.5">
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="p-2 border-t border-gray-200 flex justify-end">
+            <button id="videoInfoBtn" class="px-2 py-1 text-xs font-medium text-gray-600 hover:text-primary-700 hover:bg-primary-50 rounded transition-colors flex items-center gap-1">
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               Video Info
@@ -619,8 +609,6 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     const videoInput = document.getElementById('videoInput');
     const videoPlayerContainer = document.getElementById('videoPlayerContainer');
     const videoPlayer = document.getElementById('videoPlayer');
-    const videoFileName = document.getElementById('videoFileName');
-    const videoDuration = document.getElementById('videoDuration');
     const toolPanels = document.getElementById('toolPanels');
     const clipControlPanel = document.getElementById('clipControlPanel');
     const noVideoPlaceholder = document.getElementById('noVideoPlaceholder');
@@ -738,10 +726,13 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
     // Format seconds to HH:MM:SS.mmm
     function formatTimePrecise(seconds) {
+      // Round to 3 decimal places first to eliminate floating point errors
+      seconds = Math.round(seconds * 1000) / 1000;
+
       const hours = Math.floor(seconds / 3600);
       const mins = Math.floor((seconds % 3600) / 60);
       const secs = Math.floor(seconds % 60);
-      const ms = Math.floor((seconds % 1) * 1000);
+      const ms = Math.round((seconds % 1) * 1000);
       return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}.${ms.toString().padStart(3, '0')}`;
     }
 
@@ -831,7 +822,6 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       const url = URL.createObjectURL(file);
 
       videoPlayer.src = url;
-      videoFileName.textContent = file.name;
 
       // Show video player, hide drop zone
       dropZone.classList.add('hidden');
@@ -844,7 +834,6 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       // Load video metadata
       videoPlayer.addEventListener('loadedmetadata', () => {
         videoDurationSeconds = videoPlayer.duration;
-        videoDuration.textContent = formatTime(videoDurationSeconds);
 
         // Set slider max values
         startTimeSlider.max = videoDurationSeconds;
@@ -925,16 +914,17 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
     // Clip selection sliders
     function updateClipDisplay() {
-      const startTime = parseFloat(startTimeSlider.value);
-      const endTime = parseFloat(endTimeSlider.value);
+      // Round to 3 decimal places to fix floating point precision issues
+      let startTime = parseFloat(parseFloat(startTimeSlider.value).toFixed(3));
+      let endTime = parseFloat(parseFloat(endTimeSlider.value).toFixed(3));
 
       // Ensure start is before end
       if (startTime >= endTime) {
         startTimeSlider.value = Math.max(0, endTime - 1);
       }
 
-      const start = parseFloat(startTimeSlider.value);
-      const end = parseFloat(endTimeSlider.value);
+      const start = parseFloat(parseFloat(startTimeSlider.value).toFixed(3));
+      const end = parseFloat(parseFloat(endTimeSlider.value).toFixed(3));
 
       startTimeDisplay.textContent = formatTimePrecise(start);
       endTimeDisplay.textContent = formatTimePrecise(end);
@@ -955,9 +945,9 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
     // Start time slider - update video immediately with 0.5s snapping
     startTimeSlider.addEventListener('input', () => {
-      // Snap to nearest 0.5 seconds
+      // Snap to nearest 0.5 seconds and fix floating point precision
       let value = parseFloat(startTimeSlider.value);
-      value = Math.round(value * 2) / 2; // Round to nearest 0.5
+      value = parseFloat((Math.round(value * 2) / 2).toFixed(1)); // Round to nearest 0.5
       startTimeSlider.value = value;
 
       updateClipDisplay();
@@ -982,8 +972,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       if (endTime >= videoDurationSeconds - 0.25) {
         endTimeSlider.value = videoDurationSeconds;
       } else {
-        // Otherwise, snap to nearest 0.5 seconds
-        endTime = Math.round(endTime * 2) / 2;
+        // Otherwise, snap to nearest 0.5 seconds and fix floating point precision
+        endTime = parseFloat((Math.round(endTime * 2) / 2).toFixed(1));
         endTimeSlider.value = endTime;
       }
 
@@ -1047,16 +1037,18 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         if (action === 'start') {
           let newValue = parseFloat(startTimeSlider.value) + delta;
 
-          // Snap to appropriate increment based on delta
+          // Snap to appropriate increment based on delta and fix floating point precision
           const absDelta = Math.abs(delta);
           if (absDelta === 0.5) {
             // Snap to nearest 0.5 seconds
-            newValue = Math.round(newValue * 2) / 2;
+            newValue = parseFloat((Math.round(newValue * 2) / 2).toFixed(1));
           } else if (absDelta === 0.1) {
             // Snap to nearest 0.1 seconds
-            newValue = Math.round(newValue * 10) / 10;
+            newValue = parseFloat((Math.round(newValue * 10) / 10).toFixed(1));
+          } else {
+            // Frame adjustments - round to 3 decimal places
+            newValue = parseFloat(newValue.toFixed(3));
           }
-          // Frame adjustments (0.033) don't snap
 
           newValue = Math.max(0, Math.min(newValue, videoDurationSeconds));
           startTimeSlider.value = newValue;
@@ -1065,16 +1057,18 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         } else {
           let newValue = parseFloat(endTimeSlider.value) + delta;
 
-          // Snap to appropriate increment based on delta
+          // Snap to appropriate increment based on delta and fix floating point precision
           const absDelta = Math.abs(delta);
           if (absDelta === 0.5) {
             // Snap to nearest 0.5 seconds
-            newValue = Math.round(newValue * 2) / 2;
+            newValue = parseFloat((Math.round(newValue * 2) / 2).toFixed(1));
           } else if (absDelta === 0.1) {
             // Snap to nearest 0.1 seconds
-            newValue = Math.round(newValue * 10) / 10;
+            newValue = parseFloat((Math.round(newValue * 10) / 10).toFixed(1));
+          } else {
+            // Frame adjustments - round to 3 decimal places
+            newValue = parseFloat(newValue.toFixed(3));
           }
-          // Frame adjustments (0.033) don't snap
 
           newValue = Math.max(0, Math.min(newValue, videoDurationSeconds));
           endTimeSlider.value = newValue;
