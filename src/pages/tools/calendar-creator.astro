@@ -1,8 +1,83 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+
+// Event data structure
+interface CalendarEvent {
+  title: string;
+  location: string;
+  description: string;
+  displayTime: string;
+  displayDuration: string;
+  daysFromNow: number;
+  startTime?: string; // 24-hour format HH:MM
+  durationMinutes?: number;
+  isAllDay?: boolean;
+}
+
+const events: CalendarEvent[] = [
+  {
+    title: 'Client Deposition - Smith v. Johnson',
+    location: 'Downtown Office, Conference Room A',
+    description: 'Deposition for Smith v. Johnson case. Please bring all relevant documents and exhibits.',
+    displayTime: 'Tomorrow at 9:00 AM',
+    displayDuration: '2 hours',
+    daysFromNow: 1,
+    startTime: '09:00',
+    durationMinutes: 120
+  },
+  {
+    title: 'Court Hearing - Motion for Preliminary Injunction',
+    location: 'District Court, Courtroom 5B',
+    description: 'Hearing on motion for preliminary injunction. Judge Martinez presiding. Arrive 15 minutes early for security.',
+    displayTime: '3 days from now at 2:00 PM',
+    displayDuration: '90 minutes',
+    daysFromNow: 3,
+    startTime: '14:00',
+    durationMinutes: 90
+  },
+  {
+    title: 'Legal Tech Conference 2025',
+    location: 'Convention Center, Hall B',
+    description: 'Annual conference featuring the latest in legal technology, AI tools, and practice management software. Network with peers and attend various workshops.',
+    displayTime: '5 days from now',
+    displayDuration: 'All Day Event',
+    daysFromNow: 5,
+    isAllDay: true
+  },
+  {
+    title: 'Client Meeting - Estate Planning Review',
+    location: 'Law Office, Suite 300',
+    description: 'Annual review of estate planning documents with the Henderson family. Discuss updates to wills and trusts.',
+    displayTime: '2 days from now at 10:30 AM',
+    displayDuration: '1 hour',
+    daysFromNow: 2,
+    startTime: '10:30',
+    durationMinutes: 60
+  },
+  {
+    title: 'Filing Deadline - Summary Judgment Motion',
+    location: 'N/A',
+    description: 'Last day to file summary judgment motion in Anderson v. TechCorp case. Ensure all exhibits are attached.',
+    displayTime: '4 days from now',
+    displayDuration: 'All Day Event',
+    daysFromNow: 4,
+    isAllDay: true
+  },
+  {
+    title: 'Mediation Session',
+    location: 'Mediation Center, Room 12',
+    description: 'Settlement mediation for Wilson contract dispute. Mediator: Hon. Sarah Chen (Ret.)',
+    displayTime: 'Tomorrow at 1:00 PM',
+    displayDuration: '3 hours',
+    daysFromNow: 1,
+    startTime: '13:00',
+    durationMinutes: 180
+  }
+];
 ---
 
 <BaseLayout title="Calendar Event Creator - Legal Tools Suite" description="Generate .ics calendar files for court dates and deadlines">
+
   <div class="max-w-4xl mx-auto">
     <!-- Back Button -->
     <a href="/" class="inline-flex items-center text-sm font-medium text-primary-600 hover:text-primary-700 mb-6">
@@ -27,46 +102,246 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       </div>
     </div>
 
-    <!-- Under Construction Notice -->
-    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-8 text-center">
-      <svg class="w-16 h-16 text-yellow-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-      </svg>
-      <h2 class="text-2xl font-bold text-gray-900 mb-2">This Tool is Under Construction</h2>
-      <p class="text-gray-700 max-w-md mx-auto">
-        We're working hard to bring you this tool. Check back soon for updates!
-      </p>
-    </div>
+    <!-- Sample Calendar Events Section -->
+    <div class="mb-8">
+      <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+        <div class="flex items-start">
+          <svg class="w-5 h-5 text-blue-600 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <div>
+            <h3 class="text-sm font-semibold text-blue-900 mb-1">Test Calendar Integration</h3>
+            <p class="text-sm text-blue-800">Add events to Microsoft 365 or download .ics files for other calendar apps.</p>
+          </div>
+        </div>
+      </div>
 
-    <!-- Planned Features -->
-    <div class="mt-8 bg-white border border-gray-200 rounded-lg p-6">
-      <h3 class="text-lg font-semibold text-gray-900 mb-4">Planned Features</h3>
-      <ul class="space-y-3">
-        <li class="flex items-start">
-          <svg class="w-5 h-5 text-primary-600 mr-3 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-          </svg>
-          <span class="text-gray-700">Create calendar events with custom reminders</span>
-        </li>
-        <li class="flex items-start">
-          <svg class="w-5 h-5 text-primary-600 mr-3 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-          </svg>
-          <span class="text-gray-700">Export to .ics format compatible with all major calendars</span>
-        </li>
-        <li class="flex items-start">
-          <svg class="w-5 h-5 text-primary-600 mr-3 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-          </svg>
-          <span class="text-gray-700">Set multiple reminder notifications</span>
-        </li>
-        <li class="flex items-start">
-          <svg class="w-5 h-5 text-primary-600 mr-3 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-          </svg>
-          <span class="text-gray-700">Works with Google Calendar, Outlook, Apple Calendar, and more</span>
-        </li>
-      </ul>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {events.map((event) => (
+          <div class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+            <div class="flex items-start justify-between mb-3">
+              <div class="flex-1">
+                <h3 class="font-semibold text-gray-900">{event.title.split(' - ')[0]}</h3>
+                <p class="text-sm text-gray-600 mt-1">{event.displayTime}</p>
+                <p class="text-xs text-gray-500 mt-1">Duration: {event.displayDuration}</p>
+              </div>
+            </div>
+            <p class="text-sm text-gray-700 mb-4">{event.description.split('.')[0]}</p>
+
+            <div class="flex gap-2">
+              <button
+                class="flex-1 bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium"
+                data-event={JSON.stringify(event)}
+                data-action="microsoft365"
+              >
+                Microsoft 365
+              </button>
+              <button
+                class="flex-shrink-0 bg-gray-100 text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-200 transition-colors"
+                data-event={JSON.stringify(event)}
+                data-action="download"
+                title="Download .ics file"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   </div>
+
+  <script>
+    interface CalendarEvent {
+      title: string;
+      location: string;
+      description: string;
+      displayTime: string;
+      displayDuration: string;
+      daysFromNow: number;
+      startTime?: string;
+      durationMinutes?: number;
+      isAllDay?: boolean;
+    }
+
+    // Calculate date from daysFromNow
+    function calculateDate(daysFromNow: number): Date {
+      const date = new Date();
+      date.setDate(date.getDate() + daysFromNow);
+      return date;
+    }
+
+    // Format date for Microsoft 365 (ISO 8601)
+    function formatForMicrosoft365(date: Date, isAllDay: boolean = false): string {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+
+      if (isAllDay) {
+        return `${year}-${month}-${day}`;
+      }
+
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      const seconds = String(date.getSeconds()).padStart(2, '0');
+
+      return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+    }
+
+    // Build Microsoft 365 URL
+    function buildMicrosoft365URL(event: CalendarEvent): string {
+      const startDate = calculateDate(event.daysFromNow);
+
+      let startDateTime: string;
+      let endDateTime: string;
+
+      if (event.isAllDay) {
+        startDateTime = formatForMicrosoft365(startDate, true);
+        endDateTime = formatForMicrosoft365(startDate, true);
+      } else {
+        const [hours, minutes] = event.startTime!.split(':');
+        startDate.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+
+        const endDate = new Date(startDate.getTime() + (event.durationMinutes! * 60000));
+
+        startDateTime = formatForMicrosoft365(startDate);
+        endDateTime = formatForMicrosoft365(endDate);
+      }
+
+      const params = new URLSearchParams({
+        subject: event.title,
+        body: event.description,
+        location: event.location,
+        startdt: startDateTime,
+        enddt: endDateTime
+      });
+
+      if (event.isAllDay) {
+        params.append('allday', 'true');
+      }
+
+      return `https://outlook.office.com/calendar/deeplink/compose?${params.toString()}`;
+    }
+
+    // Format date for iCalendar format (yyyyMMddTHHmmss)
+    function formatDateForICS(date: Date, allDay: boolean = false): string {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+
+      if (allDay) {
+        return `${year}${month}${day}`;
+      }
+
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      const seconds = String(date.getSeconds()).padStart(2, '0');
+
+      return `${year}${month}${day}T${hours}${minutes}${seconds}`;
+    }
+
+    // Escape special characters in iCalendar text fields
+    function escapeICSText(text: string): string {
+      return text
+        .replace(/\\/g, '\\\\')
+        .replace(/;/g, '\\;')
+        .replace(/,/g, '\\,')
+        .replace(/\n/g, '\\n');
+    }
+
+    // Create .ics file content
+    function createICSContent(event: CalendarEvent): string {
+      const startDate = calculateDate(event.daysFromNow);
+      let endDate: Date;
+
+      if (event.isAllDay) {
+        startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(startDate);
+        endDate.setDate(endDate.getDate() + 1);
+      } else {
+        const [hours, minutes] = event.startTime!.split(':');
+        startDate.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+        endDate = new Date(startDate.getTime() + (event.durationMinutes! * 60000));
+      }
+
+      const uid = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}@legal-tools-suite`;
+      const timestamp = formatDateForICS(new Date(), false) + 'Z';
+      const startStr = formatDateForICS(startDate, event.isAllDay || false);
+      const endStr = formatDateForICS(endDate, event.isAllDay || false);
+
+      let icsContent = [
+        'BEGIN:VCALENDAR',
+        'VERSION:2.0',
+        'PRODID:-//Legal Tools Suite//Calendar Event Creator//EN',
+        'CALSCALE:GREGORIAN',
+        'METHOD:PUBLISH',
+        'BEGIN:VEVENT',
+        `UID:${uid}`,
+        `DTSTAMP:${timestamp}`,
+      ];
+
+      if (event.isAllDay) {
+        icsContent.push(`DTSTART;VALUE=DATE:${startStr}`);
+        icsContent.push(`DTEND;VALUE=DATE:${endStr}`);
+      } else {
+        icsContent.push(`DTSTART:${startStr}`);
+        icsContent.push(`DTEND:${endStr}`);
+      }
+
+      icsContent.push(
+        `SUMMARY:${escapeICSText(event.title)}`,
+        `LOCATION:${escapeICSText(event.location)}`,
+        `DESCRIPTION:${escapeICSText(event.description)}`,
+        'STATUS:CONFIRMED',
+        'SEQUENCE:0',
+        'END:VEVENT',
+        'END:VCALENDAR'
+      );
+
+      return icsContent.join('\r\n');
+    }
+
+    // Download .ics file
+    function downloadICSFile(event: CalendarEvent): void {
+      const icsContent = createICSContent(event);
+      const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+
+      const link = document.createElement('a');
+      link.href = url;
+
+      const filename = event.title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, '') + '.ics';
+
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
+
+    // Event listeners
+    document.addEventListener('DOMContentLoaded', () => {
+      const buttons = document.querySelectorAll('button[data-event]');
+
+      buttons.forEach(button => {
+        button.addEventListener('click', (e) => {
+          const target = e.currentTarget as HTMLButtonElement;
+          const eventData: CalendarEvent = JSON.parse(target.dataset.event!);
+          const action = target.dataset.action;
+
+          if (action === 'microsoft365') {
+            const url = buildMicrosoft365URL(eventData);
+            window.open(url, '_blank');
+          } else if (action === 'download') {
+            downloadICSFile(eventData);
+          }
+        });
+      });
+    });
+  </script>
 </BaseLayout>
