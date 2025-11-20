@@ -389,7 +389,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
                   <option value="2">2 frames/sec</option>
                   <option value="5">5 frames/sec</option>
                   <option value="10" selected>10 frames/sec (recommended)</option>
-                  <option value="30">30 frames/sec (all frames)</option>
+                  <option value="30">30 frames/sec (high detail)</option>
                 </select>
                 <p class="text-xs text-gray-500 mt-2">Higher frame rates create larger PDF files</p>
               </div>
@@ -707,6 +707,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     let videoFile = null;
     let videoDurationSeconds = 0;
     let clipHasBeenPlayed = false;
+    let detectedFPS = 30;  // Default to 30, will be detected from video
+    let isFPSDetected = false;
 
     // Show end time notification with auto-dismiss
     function showEndTimeNotification(endTime) {
@@ -765,9 +767,125 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}.${ms.toString().padStart(3, '0')}`;
     }
 
-    // Calculate frame number (assuming 30fps)
+    // Calculate frame number using detected FPS
     function getFrameNumber(seconds) {
-      return Math.floor(seconds * 30);
+      return Math.floor(seconds * detectedFPS);
+    }
+
+    // Detect video frame rate using requestVideoFrameCallback API
+    async function detectFPSWithCallback(video) {
+      return new Promise((resolve, reject) => {
+        let frameCount = 0;
+        let startTime = null;
+        const targetSamples = 60; // Sample 60 frames for accuracy
+
+        function frameCallback(now, metadata) {
+          if (!startTime) {
+            startTime = metadata.mediaTime;
+          }
+
+          frameCount++;
+          const elapsed = metadata.mediaTime - startTime;
+
+          // Collect enough samples (at least 1 second of video)
+          if (frameCount >= targetSamples && elapsed >= 1.0) {
+            const fps = frameCount / elapsed;
+            resolve(Math.round(fps));
+          } else if (frameCount < 120) { // Safety limit
+            video.requestVideoFrameCallback(frameCallback);
+          } else {
+            // Fallback if we hit limit
+            const fps = frameCount / elapsed;
+            resolve(Math.round(fps));
+          }
+        }
+
+        if ('requestVideoFrameCallback' in HTMLVideoElement.prototype) {
+          video.requestVideoFrameCallback(frameCallback);
+        } else {
+          reject(new Error('requestVideoFrameCallback not supported'));
+        }
+      });
+    }
+
+    // Fallback FPS detection using getVideoPlaybackQuality
+    async function detectFPSWithQuality(video) {
+      return new Promise((resolve) => {
+        const quality1 = video.getVideoPlaybackQuality();
+        const time1 = performance.now();
+
+        setTimeout(() => {
+          const quality2 = video.getVideoPlaybackQuality();
+          const time2 = performance.now();
+
+          const frames = quality2.totalVideoFrames - quality1.totalVideoFrames;
+          const elapsed = (time2 - time1) / 1000;
+          const fps = frames / elapsed;
+
+          resolve(Math.round(fps));
+        }, 1500); // Sample for 1.5 seconds
+      });
+    }
+
+    // Main FPS detection function with fallback
+    async function detectVideoFPS(video) {
+      try {
+        // Store original state
+        const wasPlaying = !video.paused;
+        const originalTime = video.currentTime;
+
+        // Need to play video to detect FPS
+        video.currentTime = Math.min(2, video.duration / 2); // Start from 2s or middle
+        await video.play();
+
+        let fps;
+        if ('requestVideoFrameCallback' in HTMLVideoElement.prototype) {
+          fps = await detectFPSWithCallback(video);
+        } else {
+          fps = await detectFPSWithQuality(video);
+        }
+
+        // Restore original state
+        video.pause();
+        video.currentTime = originalTime;
+        if (wasPlaying) {
+          video.play();
+        }
+
+        return fps;
+      } catch (error) {
+        console.warn('FPS detection failed:', error);
+        return 30; // Default fallback
+      }
+    }
+
+    // Update all FPS-dependent UI elements
+    function updateFPSDependentUI() {
+      // Update fine-tune button deltas
+      const frameTime = 1 / detectedFPS;
+      document.querySelectorAll('.fine-tune-btn[data-action="start"]').forEach(btn => {
+        const delta = parseFloat(btn.dataset.delta);
+        if (Math.abs(delta) < 0.04) { // This is a frame button (was 0.033)
+          btn.dataset.delta = delta > 0 ? frameTime.toFixed(6) : (-frameTime).toFixed(6);
+        }
+      });
+      document.querySelectorAll('.fine-tune-btn[data-action="end"]').forEach(btn => {
+        const delta = parseFloat(btn.dataset.delta);
+        if (Math.abs(delta) < 0.04) { // This is a frame button (was 0.033)
+          btn.dataset.delta = delta > 0 ? frameTime.toFixed(6) : (-frameTime).toFixed(6);
+        }
+      });
+
+      // Update frame number displays
+      updateClipDisplay();
+
+      // Update video info display
+      if (isFPSDetected) {
+        infoFrameRate.textContent = `${detectedFPS} fps`;
+      } else {
+        infoFrameRate.textContent = `${detectedFPS} fps (estimated)`;
+      }
+      infoTotalFrames.textContent = Math.floor(videoDurationSeconds * detectedFPS).toLocaleString();
     }
 
     // Generate timeline tick marks
@@ -841,10 +959,13 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       infoResolution.textContent = `${videoPlayer.videoWidth} × ${videoPlayer.videoHeight}`;
       infoAspectRatio.textContent = calculateAspectRatio(videoPlayer.videoWidth, videoPlayer.videoHeight);
 
-      // Frame rate (assume 30fps as default, browser doesn't provide this directly)
-      const fps = 30;
-      infoFrameRate.textContent = `${fps} fps (estimated)`;
-      infoTotalFrames.textContent = Math.floor(videoDurationSeconds * fps).toLocaleString();
+      // Frame rate (detected or estimated)
+      if (isFPSDetected) {
+        infoFrameRate.textContent = `${detectedFPS} fps`;
+      } else {
+        infoFrameRate.textContent = `${detectedFPS} fps (estimated)`;
+      }
+      infoTotalFrames.textContent = Math.floor(videoDurationSeconds * detectedFPS).toLocaleString();
 
       // Show modal
       videoInfoModal.classList.remove('hidden');
@@ -980,9 +1101,10 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         pdf.text(`Resolution: ${videoPlayer.videoWidth} × ${videoPlayer.videoHeight}`, 20, 60);
         pdf.text(`Clip Range: ${formatTimePrecise(startTime)} - ${formatTimePrecise(endTime)}`, 20, 70);
         pdf.text(`Clip Duration: ${formatTimePrecise(duration)}`, 20, 80);
-        pdf.text(`Frame Rate: ${fps} fps`, 20, 90);
-        pdf.text(`Total Frames: ${totalFrames}`, 20, 100);
-        pdf.text(`Export Date: ${new Date().toLocaleString()}`, 20, 110);
+        pdf.text(`Source Video Frame Rate: ${detectedFPS} fps${isFPSDetected ? '' : ' (estimated)'}`, 20, 90);
+        pdf.text(`Export Sampling Rate: ${fps} fps`, 20, 100);
+        pdf.text(`Frames in Export: ${totalFrames}`, 20, 110);
+        pdf.text(`Export Date: ${new Date().toLocaleString()}`, 20, 120);
 
         // Add frames
         for (let i = 0; i < frames.length; i++) {
@@ -1130,7 +1252,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       resetBtn.classList.remove('hidden');
 
       // Load video metadata
-      videoPlayer.addEventListener('loadedmetadata', () => {
+      videoPlayer.addEventListener('loadedmetadata', async () => {
         videoDurationSeconds = videoPlayer.duration;
 
         // Set slider max values
@@ -1142,6 +1264,19 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         generateTimelineTicks(videoDurationSeconds);
 
         updateClipDisplay();
+
+        // Detect FPS
+        infoFrameRate.textContent = 'Detecting...';
+        try {
+          detectedFPS = await detectVideoFPS(videoPlayer);
+          isFPSDetected = true;
+          updateFPSDependentUI();
+        } catch (error) {
+          console.warn('FPS detection failed, using default 30 fps:', error);
+          detectedFPS = 30;
+          isFPSDetected = false;
+          updateFPSDependentUI();
+        }
       });
 
       // Constrain playback to clip range
