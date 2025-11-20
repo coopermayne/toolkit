@@ -102,6 +102,83 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
             </div>
           </div>
         </div>
+
+        <!-- Video Info Modal -->
+        <div id="videoInfoModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div class="bg-white rounded-lg w-full max-w-2xl shadow-2xl max-h-[90vh] overflow-hidden flex flex-col">
+            <div class="bg-gradient-to-r from-primary-50 to-primary-100 px-6 py-4 border-b border-primary-200 flex items-center justify-between">
+              <h3 class="text-lg font-semibold text-primary-900">Video Information</h3>
+              <button id="closeVideoInfoModal" class="text-gray-500 hover:text-gray-700 transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div class="p-6 overflow-y-auto">
+              <div class="space-y-4">
+                <div class="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
+                  <!-- File Information -->
+                  <div class="col-span-2 border-b border-gray-200 pb-2 mb-2">
+                    <h4 class="font-semibold text-gray-900 text-base">File Information</h4>
+                  </div>
+                  <div>
+                    <span class="font-medium text-gray-600">File Name:</span>
+                  </div>
+                  <div>
+                    <span id="infoFileName" class="text-gray-900 break-all">--</span>
+                  </div>
+                  <div>
+                    <span class="font-medium text-gray-600">File Size:</span>
+                  </div>
+                  <div>
+                    <span id="infoFileSize" class="text-gray-900">--</span>
+                  </div>
+                  <div>
+                    <span class="font-medium text-gray-600">File Type:</span>
+                  </div>
+                  <div>
+                    <span id="infoFileType" class="text-gray-900">--</span>
+                  </div>
+
+                  <!-- Video Properties -->
+                  <div class="col-span-2 border-b border-gray-200 pb-2 mb-2 mt-4">
+                    <h4 class="font-semibold text-gray-900 text-base">Video Properties</h4>
+                  </div>
+                  <div>
+                    <span class="font-medium text-gray-600">Duration:</span>
+                  </div>
+                  <div>
+                    <span id="infoDuration" class="text-gray-900">--</span>
+                  </div>
+                  <div>
+                    <span class="font-medium text-gray-600">Resolution:</span>
+                  </div>
+                  <div>
+                    <span id="infoResolution" class="text-gray-900">--</span>
+                  </div>
+                  <div>
+                    <span class="font-medium text-gray-600">Aspect Ratio:</span>
+                  </div>
+                  <div>
+                    <span id="infoAspectRatio" class="text-gray-900">--</span>
+                  </div>
+                  <div>
+                    <span class="font-medium text-gray-600">Frame Rate:</span>
+                  </div>
+                  <div>
+                    <span id="infoFrameRate" class="text-gray-900">--</span>
+                  </div>
+                  <div>
+                    <span class="font-medium text-gray-600">Total Frames:</span>
+                  </div>
+                  <div>
+                    <span id="infoTotalFrames" class="text-gray-900">--</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Right Side: Tool Panels (1/3 width) -->
@@ -145,9 +222,9 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
                   <div id="rangeHighlight" class="absolute h-full bg-primary-400 rounded-full" style="left: 0%; width: 100%;"></div>
                 </div>
                 <!-- Start handle slider -->
-                <input type="range" id="startTimeSlider" min="0" max="100" value="0" step="0.5" class="absolute top-0 w-full h-8 appearance-none bg-transparent pointer-events-none range-slider" style="z-index: 3;" />
+                <input type="range" id="startTimeSlider" min="0" max="100" value="0" step="0.01" class="absolute top-0 w-full h-8 appearance-none bg-transparent pointer-events-none range-slider" style="z-index: 3;" />
                 <!-- End handle slider -->
-                <input type="range" id="endTimeSlider" min="0" max="100" value="100" step="0.5" class="absolute top-0 w-full h-8 appearance-none bg-transparent pointer-events-none range-slider" style="z-index: 4;" />
+                <input type="range" id="endTimeSlider" min="0" max="100" value="100" step="0.01" class="absolute top-0 w-full h-8 appearance-none bg-transparent pointer-events-none range-slider" style="z-index: 4;" />
               </div>
 
               <!-- Fine-Tune Controls -->
@@ -172,21 +249,37 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
                       <span class="text-xs text-gray-500">Frame: <span id="startFrameNum" class="font-mono">0</span></span>
                     </div>
 
-                    <div class="flex items-center gap-1">
-                      <button class="fine-tune-btn" data-action="start" data-delta="-1">
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
-                        </svg>
-                      </button>
-                      <button class="fine-tune-btn" data-action="start" data-delta="-0.033">-1 frame</button>
-                      <button class="fine-tune-btn" data-action="start" data-delta="-0.1">-0.1s</button>
-                      <button class="fine-tune-btn" data-action="start" data-delta="0.1">+0.1s</button>
-                      <button class="fine-tune-btn" data-action="start" data-delta="0.033">+1 frame</button>
-                      <button class="fine-tune-btn" data-action="start" data-delta="1">
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
-                        </svg>
-                      </button>
+                    <div class="flex justify-center gap-2">
+                      <!-- Minus buttons -->
+                      <div class="flex gap-1">
+                        <div class="flex flex-col items-center">
+                          <button class="fine-tune-btn text-gray-700 hover:bg-gray-100" data-action="start" data-delta="-0.5">&lt;&lt;&lt;</button>
+                          <span class="text-xs text-gray-500 mt-0.5">.5s</span>
+                        </div>
+                        <div class="flex flex-col items-center">
+                          <button class="fine-tune-btn text-gray-700 hover:bg-gray-100" data-action="start" data-delta="-0.1">&lt;&lt;</button>
+                          <span class="text-xs text-gray-500 mt-0.5">.1s</span>
+                        </div>
+                        <div class="flex flex-col items-center">
+                          <button class="fine-tune-btn text-gray-700 hover:bg-gray-100" data-action="start" data-delta="-0.033">&lt;</button>
+                          <span class="text-xs text-gray-500 mt-0.5">1f</span>
+                        </div>
+                      </div>
+                      <!-- Plus buttons -->
+                      <div class="flex gap-1">
+                        <div class="flex flex-col items-center">
+                          <button class="fine-tune-btn text-gray-700 hover:bg-gray-100" data-action="start" data-delta="0.033">&gt;</button>
+                          <span class="text-xs text-gray-500 mt-0.5">1f</span>
+                        </div>
+                        <div class="flex flex-col items-center">
+                          <button class="fine-tune-btn text-gray-700 hover:bg-gray-100" data-action="start" data-delta="0.1">&gt;&gt;</button>
+                          <span class="text-xs text-gray-500 mt-0.5">.1s</span>
+                        </div>
+                        <div class="flex flex-col items-center">
+                          <button class="fine-tune-btn text-gray-700 hover:bg-gray-100" data-action="start" data-delta="0.5">&gt;&gt;&gt;</button>
+                          <span class="text-xs text-gray-500 mt-0.5">.5s</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
@@ -197,21 +290,37 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
                       <span class="text-xs text-gray-500">Frame: <span id="endFrameNum" class="font-mono">0</span></span>
                     </div>
 
-                    <div class="flex items-center gap-1">
-                      <button class="fine-tune-btn" data-action="end" data-delta="-1">
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
-                        </svg>
-                      </button>
-                      <button class="fine-tune-btn" data-action="end" data-delta="-0.033">-1 frame</button>
-                      <button class="fine-tune-btn" data-action="end" data-delta="-0.1">-0.1s</button>
-                      <button class="fine-tune-btn" data-action="end" data-delta="0.1">+0.1s</button>
-                      <button class="fine-tune-btn" data-action="end" data-delta="0.033">+1 frame</button>
-                      <button class="fine-tune-btn" data-action="end" data-delta="1">
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
-                        </svg>
-                      </button>
+                    <div class="flex justify-center gap-2">
+                      <!-- Minus buttons -->
+                      <div class="flex gap-1">
+                        <div class="flex flex-col items-center">
+                          <button class="fine-tune-btn text-gray-700 hover:bg-gray-100" data-action="end" data-delta="-0.5">&lt;&lt;&lt;</button>
+                          <span class="text-xs text-gray-500 mt-0.5">.5s</span>
+                        </div>
+                        <div class="flex flex-col items-center">
+                          <button class="fine-tune-btn text-gray-700 hover:bg-gray-100" data-action="end" data-delta="-0.1">&lt;&lt;</button>
+                          <span class="text-xs text-gray-500 mt-0.5">.1s</span>
+                        </div>
+                        <div class="flex flex-col items-center">
+                          <button class="fine-tune-btn text-gray-700 hover:bg-gray-100" data-action="end" data-delta="-0.033">&lt;</button>
+                          <span class="text-xs text-gray-500 mt-0.5">1f</span>
+                        </div>
+                      </div>
+                      <!-- Plus buttons -->
+                      <div class="flex gap-1">
+                        <div class="flex flex-col items-center">
+                          <button class="fine-tune-btn text-gray-700 hover:bg-gray-100" data-action="end" data-delta="0.033">&gt;</button>
+                          <span class="text-xs text-gray-500 mt-0.5">1f</span>
+                        </div>
+                        <div class="flex flex-col items-center">
+                          <button class="fine-tune-btn text-gray-700 hover:bg-gray-100" data-action="end" data-delta="0.1">&gt;&gt;</button>
+                          <span class="text-xs text-gray-500 mt-0.5">.1s</span>
+                        </div>
+                        <div class="flex flex-col items-center">
+                          <button class="fine-tune-btn text-gray-700 hover:bg-gray-100" data-action="end" data-delta="0.5">&gt;&gt;&gt;</button>
+                          <span class="text-xs text-gray-500 mt-0.5">.5s</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -526,6 +635,19 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
     let endTimeNotificationTimeout = null;
 
+    // Video info modal
+    const videoInfoBtn = document.getElementById('videoInfoBtn');
+    const videoInfoModal = document.getElementById('videoInfoModal');
+    const closeVideoInfoModal = document.getElementById('closeVideoInfoModal');
+    const infoFileName = document.getElementById('infoFileName');
+    const infoFileSize = document.getElementById('infoFileSize');
+    const infoFileType = document.getElementById('infoFileType');
+    const infoDuration = document.getElementById('infoDuration');
+    const infoResolution = document.getElementById('infoResolution');
+    const infoAspectRatio = document.getElementById('infoAspectRatio');
+    const infoFrameRate = document.getElementById('infoFrameRate');
+    const infoTotalFrames = document.getElementById('infoTotalFrames');
+
     // Tab switching
     const tabBtns = document.querySelectorAll('.tab-btn');
     const tabPanels = document.querySelectorAll('.tab-panel');
@@ -626,6 +748,49 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     // Calculate frame number (assuming 30fps)
     function getFrameNumber(seconds) {
       return Math.floor(seconds * 30);
+    }
+
+    // Format file size
+    function formatFileSize(bytes) {
+      if (bytes === 0) return '0 Bytes';
+      const k = 1024;
+      const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
+    }
+
+    // Calculate GCD for aspect ratio
+    function gcd(a, b) {
+      return b === 0 ? a : gcd(b, a % b);
+    }
+
+    // Calculate aspect ratio
+    function calculateAspectRatio(width, height) {
+      const divisor = gcd(width, height);
+      return `${width / divisor}:${height / divisor}`;
+    }
+
+    // Populate and show video info modal
+    function showVideoInfo() {
+      if (!videoFile) return;
+
+      // File information
+      infoFileName.textContent = videoFile.name;
+      infoFileSize.textContent = formatFileSize(videoFile.size);
+      infoFileType.textContent = videoFile.type || 'Unknown';
+
+      // Video properties
+      infoDuration.textContent = formatTimePrecise(videoDurationSeconds);
+      infoResolution.textContent = `${videoPlayer.videoWidth} × ${videoPlayer.videoHeight}`;
+      infoAspectRatio.textContent = calculateAspectRatio(videoPlayer.videoWidth, videoPlayer.videoHeight);
+
+      // Frame rate (assume 30fps as default, browser doesn't provide this directly)
+      const fps = 30;
+      infoFrameRate.textContent = `${fps} fps (estimated)`;
+      infoTotalFrames.textContent = Math.floor(videoDurationSeconds * fps).toLocaleString();
+
+      // Show modal
+      videoInfoModal.classList.remove('hidden');
     }
 
     // Drop zone click
@@ -788,10 +953,15 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       }
     }
 
-    // Start time slider - update video immediately
+    // Start time slider - update video immediately with 0.5s snapping
     startTimeSlider.addEventListener('input', () => {
+      // Snap to nearest 0.5 seconds
+      let value = parseFloat(startTimeSlider.value);
+      value = Math.round(value * 2) / 2; // Round to nearest 0.5
+      startTimeSlider.value = value;
+
       updateClipDisplay();
-      videoPlayer.currentTime = parseFloat(startTimeSlider.value);
+      videoPlayer.currentTime = value;
       updatePlayClipButton();
     });
 
@@ -806,10 +976,15 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     });
 
     endTimeSlider.addEventListener('input', () => {
-      // If end slider is at or near max, snap to exact video duration
       let endTime = parseFloat(endTimeSlider.value);
+
+      // If at or near max, snap to exact video duration
       if (endTime >= videoDurationSeconds - 0.25) {
         endTimeSlider.value = videoDurationSeconds;
+      } else {
+        // Otherwise, snap to nearest 0.5 seconds
+        endTime = Math.round(endTime * 2) / 2;
+        endTimeSlider.value = endTime;
       }
 
       updateClipDisplay();
@@ -821,6 +996,29 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     // Done editing end time button
     doneEditingEndTime.addEventListener('click', () => {
       hideEndTimeNotification();
+    });
+
+    // Video info modal
+    videoInfoBtn.addEventListener('click', () => {
+      showVideoInfo();
+    });
+
+    closeVideoInfoModal.addEventListener('click', () => {
+      videoInfoModal.classList.add('hidden');
+    });
+
+    // Close modal when clicking outside
+    videoInfoModal.addEventListener('click', (e) => {
+      if (e.target === videoInfoModal) {
+        videoInfoModal.classList.add('hidden');
+      }
+    });
+
+    // Close modal with Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !videoInfoModal.classList.contains('hidden')) {
+        videoInfoModal.classList.add('hidden');
+      }
     });
 
     // Zoom level
@@ -847,12 +1045,38 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         const delta = parseFloat(btn.dataset.delta);
 
         if (action === 'start') {
-          const newValue = Math.max(0, Math.min(parseFloat(startTimeSlider.value) + delta, videoDurationSeconds));
+          let newValue = parseFloat(startTimeSlider.value) + delta;
+
+          // Snap to appropriate increment based on delta
+          const absDelta = Math.abs(delta);
+          if (absDelta === 0.5) {
+            // Snap to nearest 0.5 seconds
+            newValue = Math.round(newValue * 2) / 2;
+          } else if (absDelta === 0.1) {
+            // Snap to nearest 0.1 seconds
+            newValue = Math.round(newValue * 10) / 10;
+          }
+          // Frame adjustments (0.033) don't snap
+
+          newValue = Math.max(0, Math.min(newValue, videoDurationSeconds));
           startTimeSlider.value = newValue;
           // Seek video to show the starting frame
           videoPlayer.currentTime = newValue;
         } else {
-          const newValue = Math.max(0, Math.min(parseFloat(endTimeSlider.value) + delta, videoDurationSeconds));
+          let newValue = parseFloat(endTimeSlider.value) + delta;
+
+          // Snap to appropriate increment based on delta
+          const absDelta = Math.abs(delta);
+          if (absDelta === 0.5) {
+            // Snap to nearest 0.5 seconds
+            newValue = Math.round(newValue * 2) / 2;
+          } else if (absDelta === 0.1) {
+            // Snap to nearest 0.1 seconds
+            newValue = Math.round(newValue * 10) / 10;
+          }
+          // Frame adjustments (0.033) don't snap
+
+          newValue = Math.max(0, Math.min(newValue, videoDurationSeconds));
           endTimeSlider.value = newValue;
 
           // Show notification and reset auto-dismiss timer
